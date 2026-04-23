@@ -1,6 +1,24 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { createLinkSchema } from "../src/utils/short-url-schema";
+
+vi.mock("../src/db/index.ts", () => ({
+  db: {
+    insert: () => ({
+      values: () => ({
+        returning: async () => [
+          {
+            id: "test-link-id",
+            originalUrl: "https://example.com",
+            shortUrl: "rocket-link",
+            accessCount: 0,
+            createdAt: new Date(),
+          },
+        ],
+      }),
+    }),
+  },
+}));
 
 describe("createLinkSchema", () => {
   it("accepts a valid originalUrl and shortUrl", () => {
@@ -28,5 +46,21 @@ describe("createLinkSchema", () => {
     });
 
     expect(result.success).toBe(false);
+  });
+
+  it("creates a link with valid data", async () => {
+    const { buildApp } = await import("./helpers/build-app");
+    const app = buildApp();
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/links",
+      payload: {
+        originalUrl: "https://example.com",
+        shortUrl: "rocket-link",
+      },
+    });
+
+    expect(response.statusCode).toBe(201);
   });
 });
