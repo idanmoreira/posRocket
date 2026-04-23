@@ -2,6 +2,7 @@ import type { FastifyPluginAsync } from "fastify";
 
 import { createLink } from "../functions/create-link";
 import { deleteLink } from "../functions/delete-link";
+import { exportLinks } from "../functions/export-links";
 import { getLinkByShortUrl } from "../functions/get-link-by-short-url";
 import { incrementLinkAccess } from "../functions/increment-link-access";
 import { listLinks } from "../functions/list-links";
@@ -55,5 +56,11 @@ export const linksRoutes: FastifyPluginAsync = async (app) => {
     }
 
     return reply.status(204).send();
+  });
+
+  app.post("/links/export", async (request, reply) => {
+    const result = await exportLinks();
+
+    return reply.status(201).send(result);
   });
 };

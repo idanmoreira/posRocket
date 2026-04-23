@@ -12,6 +12,7 @@
     "db:migrate": "tsx src/db/migrate.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1036.0",
     "@fastify/cors": "^11.2.0",
     "drizzle-orm": "^0.45.2",
     "fastify": "^5.8.5",
