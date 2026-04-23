@@ -12,7 +12,9 @@
     "db:migrate": "tsx src/db/migrate.ts"
   },
   "dependencies": {
+    "@fastify/cors": "^11.2.0",
     "drizzle-orm": "^0.45.2",
+    "fastify": "^5.8.5",
     "pg": "^8.20.0",
     "zod": "^4.3.6"
   },
