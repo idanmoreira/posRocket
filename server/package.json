@@ -1,0 +1,14 @@
+{
+  "name": "posrocket-server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsup src/server.ts --format esm --dts false --out-dir dist",
+    "start": "node dist/server.js",
+    "test": "vitest run",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx src/db/migrate.ts"
+  }
+}
