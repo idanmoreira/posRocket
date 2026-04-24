@@ -1,34 +1,16 @@
 import type { RouteObject } from "react-router-dom";
 import { HomePage } from "./pages/home";
-
-const RedirectPage = () => {
-  return (
-    <main className="app-shell">
-      <section className="hero-card" aria-label="Página não encontrada">
-        <p className="eyebrow">Brev.ly</p>
-        <h1>Não encontrado</h1>
-        <p className="hero-copy">A página de redirecionamento será conectada na próxima etapa.</p>
-      </section>
-    </main>
-  );
-};
-
-const NotFoundPage = () => {
-  return (
-    <main className="app-shell">
-      <section className="hero-card" aria-label="Página não encontrada">
-        <p className="eyebrow">Brev.ly</p>
-        <h1>Não encontrado</h1>
-        <p className="hero-copy">A rota solicitada não existe.</p>
-      </section>
-    </main>
-  );
-};
+import { NotFoundPage } from "./pages/not-found";
+import { RedirectPage } from "./pages/redirect";
 
 export const routerConfig: RouteObject[] = [
   {
     path: "/",
     element: <HomePage />,
+  },
+  {
+    path: "/not-found",
+    element: <NotFoundPage />,
   },
   {
     path: "/:shortUrl",
