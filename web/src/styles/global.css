@@ -1,0 +1,152 @@
+:root {
+  color-scheme: light;
+  font-family: "Sora", "Segoe UI", sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  background:
+    radial-gradient(circle at top, #fff3d6 0, transparent 36%),
+    linear-gradient(180deg, #fffaf0 0%, #f5efe2 100%);
+  color: #1f1300;
+  --surface: rgba(255, 252, 245, 0.88);
+  --surface-strong: #fffdf8;
+  --border: rgba(109, 69, 0, 0.14);
+  --text-muted: #7a6440;
+  --accent: #c75100;
+  --accent-strong: #8f2d00;
+  --shadow: 0 24px 80px rgba(125, 79, 0, 0.15);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.hero-card {
+  width: min(100%, 720px);
+  padding: 32px;
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(16px);
+}
+
+.eyebrow {
+  margin: 0 0 12px;
+  color: var(--accent-strong);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.hero-card h1 {
+  margin: 0;
+  font-size: clamp(2.5rem, 8vw, 4.5rem);
+  line-height: 0.95;
+}
+
+.hero-copy {
+  margin: 16px 0 0;
+  max-width: 36rem;
+  color: var(--text-muted);
+}
+
+.preview-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.preview-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.ui-button {
+  border: 0;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+  color: #fffaf4;
+  padding: 0.95rem 1.4rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ui-button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.ui-text-input {
+  width: 100%;
+  padding: 0.95rem 1rem;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface-strong);
+  color: inherit;
+}
+
+.ui-text-input::placeholder {
+  color: #a08964;
+}
+
+.ui-spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(199, 81, 0, 0.2);
+  border-top-color: var(--accent);
+  border-radius: 999px;
+  animation: spin 0.8s linear infinite;
+}
+
+.ui-toast {
+  padding: 0.875rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(143, 45, 0, 0.16);
+  background: rgba(255, 245, 234, 0.95);
+  color: var(--accent-strong);
+  font-weight: 600;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-card {
+    padding: 24px;
+    border-radius: 24px;
+  }
+
+  .preview-grid {
+    grid-template-columns: 1fr;
+  }
+}
