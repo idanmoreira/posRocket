@@ -1,5 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 
+const mockedLink = {
+  id: "link-1",
+  originalUrl: "https://example.com",
+  shortUrl: "example",
+  accessCount: 1,
+  createdAt: new Date("2026-04-23T12:00:00.000Z"),
+};
+
 const uploadFileToR2 = vi.fn(async (_key: string, _body: string) => ({
   url: "https://cdn.brev.ly/exports/test.csv",
 }));
@@ -8,15 +16,7 @@ vi.mock("../src/db/index.ts", () => ({
   db: {
     select: () => ({
       from: () => ({
-        orderBy: async () => [
-          {
-            id: "link-1",
-            originalUrl: "https://example.com",
-            shortUrl: "example",
-            accessCount: 1,
-            createdAt: new Date("2026-04-23T12:00:00.000Z"),
-          },
-        ],
+        orderBy: async () => [mockedLink],
       }),
     }),
     insert: () => ({
@@ -44,7 +44,10 @@ vi.mock("../src/lib/r2.ts", () => ({
 }));
 
 describe("POST /links/export", () => {
-  it("returns 200 or 201 with a public url", async () => {
+  it("uploads a csv export with a uuid filename and returns the public url", async () => {
+    const randomUuidSpy = vi
+      .spyOn(crypto, "randomUUID")
+      .mockReturnValue("export-file-id");
     const { buildApp } = await import("./helpers/build-app");
     const app = buildApp();
     const response = await app.inject({ method: "POST", url: "/links/export" });
@@ -54,5 +57,15 @@ describe("POST /links/export", () => {
       url: "https://cdn.brev.ly/exports/test.csv",
     });
     expect(uploadFileToR2).toHaveBeenCalledTimes(1);
+    expect(randomUuidSpy).toHaveBeenCalledTimes(1);
+    expect(uploadFileToR2).toHaveBeenCalledWith(
+      "export-file-id.csv",
+      [
+        "originalUrl,shortUrl,accessCount,createdAt",
+        "https://example.com,example,1,2026-04-23T12:00:00.000Z",
+      ].join("\n"),
+    );
+
+    randomUuidSpy.mockRestore();
   });
 });
