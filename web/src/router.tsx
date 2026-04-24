@@ -1,7 +1,5 @@
 import type { RouteObject } from "react-router-dom";
-import { App } from "./app";
-
-const HomePage = () => <App />;
+import { HomePage } from "./pages/home";
 
 const RedirectPage = () => {
   return (
