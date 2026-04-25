@@ -12,7 +12,7 @@ describe("NotFoundPage", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText(/não encontrado/i)).toBeInTheDocument();
+    expect(screen.getByText(/link não encontrado/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /voltar para a home/i })).toHaveAttribute("href", "/");
   });
 });

@@ -1,26 +1,42 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createLinkSchema } from "../src/utils/short-url-schema";
 
+const mockedReturning = vi.fn();
+let mockedExistingLinks: Array<{ id: string }> = [];
+
 vi.mock("../src/db/index.ts", () => ({
   db: {
+    select: () => ({
+      from: () => ({
+        where: () => ({
+          limit: async () => mockedExistingLinks,
+        }),
+      }),
+    }),
     insert: () => ({
       values: () => ({
-        returning: async () => [
-          {
-            id: "test-link-id",
-            originalUrl: "https://example.com",
-            shortUrl: "rocket-link",
-            accessCount: 0,
-            createdAt: new Date(),
-          },
-        ],
+        returning: mockedReturning,
       }),
     }),
   },
 }));
 
 describe("createLinkSchema", () => {
+  beforeEach(() => {
+    mockedExistingLinks = [];
+    mockedReturning.mockReset();
+    mockedReturning.mockResolvedValue([
+      {
+        id: "test-link-id",
+        originalUrl: "https://example.com",
+        shortUrl: "rocket-link",
+        accessCount: 0,
+        createdAt: new Date(),
+      },
+    ]);
+  });
+
   it("accepts a valid originalUrl and shortUrl", () => {
     const result = createLinkSchema.safeParse({
       originalUrl: "https://example.com",
@@ -62,5 +78,46 @@ describe("createLinkSchema", () => {
     });
 
     expect(response.statusCode).toBe(201);
+  });
+
+  it("returns 400 for an invalid shortUrl payload", async () => {
+    const { buildApp } = await import("./helpers/build-app");
+    const app = buildApp();
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/links",
+      payload: {
+        originalUrl: "https://example.com",
+        shortUrl: "Meu Link",
+      },
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json()).toEqual({
+      message: "Invalid string: must match pattern /^[a-z0-9][a-z0-9-]*[a-z0-9]$/",
+      statusCode: 400,
+    });
+  });
+
+  it("returns 409 when the shortUrl already exists", async () => {
+    mockedExistingLinks = [{ id: "existing-link-id" }];
+    const { buildApp } = await import("./helpers/build-app");
+    const app = buildApp();
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/links",
+      payload: {
+        originalUrl: "https://example.com",
+        shortUrl: "rocket-link",
+      },
+    });
+
+    expect(response.statusCode).toBe(409);
+    expect(response.json()).toEqual({
+      message: "Short URL already exists",
+      statusCode: 409,
+    });
   });
 });

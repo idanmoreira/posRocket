@@ -5,6 +5,7 @@ import { LinkList } from "../components/links/link-list";
 import { Button } from "../components/ui/button";
 import { Spinner } from "../components/ui/spinner";
 import { Toast } from "../components/ui/toast";
+import type { Link } from "../services/create-link";
 import { createLink } from "../services/create-link";
 import { deleteLink } from "../services/delete-link";
 import { exportLinks } from "../services/export-links";
@@ -18,6 +19,17 @@ const getErrorMessage = (error: unknown) => {
   }
 
   return "Unexpected error";
+};
+
+const triggerCsvDownload = (url: string, filename = "links.csv") => {
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  anchor.rel = "noopener noreferrer";
+  anchor.target = "_blank";
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
 };
 
 export const HomePage = () => {
@@ -47,8 +59,23 @@ export const HomePage = () => {
       setDeletingShortUrl(shortUrl);
       return deleteLink(shortUrl);
     },
-    onError: (error) => {
+    onError: (error, _shortUrl, previousLinks) => {
+      queryClient.setQueryData(linksQueryKey, previousLinks);
       setToastMessage(getErrorMessage(error));
+    },
+    onMutate: async (shortUrl) => {
+      await queryClient.cancelQueries({ queryKey: linksQueryKey });
+      const previousLinks = queryClient.getQueryData<Link[]>(linksQueryKey);
+
+      queryClient.setQueryData<Link[] | undefined>(linksQueryKey, (current) => {
+        if (!current) {
+          return current;
+        }
+
+        return current.filter((link) => link.shortUrl !== shortUrl);
+      });
+
+      return previousLinks;
     },
     onSettled: async () => {
       setDeletingShortUrl(null);
@@ -65,8 +92,8 @@ export const HomePage = () => {
       setToastMessage(getErrorMessage(error));
     },
     onSuccess: ({ url }) => {
-      window.open(url, "_blank", "noopener,noreferrer");
-      setToastMessage("Exportacao iniciada.");
+      triggerCsvDownload(url);
+      setToastMessage("Exportação iniciada.");
     },
   });
 
@@ -77,7 +104,23 @@ export const HomePage = () => {
   }, [linksQuery.data]);
 
   const handleCreate = async (values: CreateLinkFormValues) => {
+    const alreadyExists = orderedLinks.some((link) => link.shortUrl === values.shortUrl);
+
+    if (alreadyExists) {
+      setToastMessage("Essa URL encurtada já existe.");
+      return;
+    }
+
     await createLinkMutation.mutateAsync(values);
+  };
+
+  const handleCopy = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setToastMessage("URL copiada.");
+    } catch {
+      setToastMessage("Não foi possível copiar a URL.");
+    }
   };
 
   const handleDelete = (shortUrl: string) => {
@@ -90,6 +133,16 @@ export const HomePage = () => {
 
   return (
     <main className="home-page">
+      <section className="home-topbar">
+        <div>
+          <p className="brand-mark">posRocket</p>
+          <h1 className="screen-title">Gerencie seus links</h1>
+        </div>
+        <p className="screen-copy">
+          Cadastre, acompanhe acessos e exporte seus atalhos em um só lugar.
+        </p>
+      </section>
+
       <section className="home-grid">
         <CreateLinkForm isSubmitting={createLinkMutation.isPending} onSubmit={handleCreate} />
 
@@ -100,6 +153,9 @@ export const HomePage = () => {
               <h2 id="link-list-title" className="panel-title">
                 Links cadastrados
               </h2>
+              <p className="panel-description">
+                Acompanhe desempenho, exclua atalhos e exporte um CSV com o histórico.
+              </p>
             </div>
 
             <Button
@@ -118,7 +174,12 @@ export const HomePage = () => {
               <span>Carregando links...</span>
             </div>
           ) : (
-            <LinkList deletingShortUrl={deletingShortUrl} links={orderedLinks} onDelete={handleDelete} />
+            <LinkList
+              deletingShortUrl={deletingShortUrl}
+              links={orderedLinks}
+              onCopy={handleCopy}
+              onDelete={handleDelete}
+            />
           )}
         </section>
       </section>

@@ -25,7 +25,7 @@ export class HttpError extends Error {
 }
 
 const buildHeaders = (body: HttpRequestOptions["body"], headers?: HeadersInit) => {
-  if (body instanceof FormData) {
+  if (body == null || body instanceof FormData) {
     return headers;
   }
 

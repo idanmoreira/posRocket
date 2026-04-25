@@ -1,8 +1,14 @@
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 
 import { db, pool } from "./index";
+import { env } from "../env";
 
 const run = async () => {
+  if (env.USE_PGMEM) {
+    await pool.end();
+    return;
+  }
+
   await migrate(db, {
     migrationsFolder: "./drizzle",
   });

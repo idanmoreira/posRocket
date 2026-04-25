@@ -8,11 +8,12 @@ const RedirectPageLoading = () => {
   return (
     <main className="app-shell">
       <section className="hero-card" aria-label="Redirecionando link">
-        <p className="eyebrow">Brev.ly</p>
-        <h1>Abrindo destino</h1>
+        <p className="brand-mark">posRocket</p>
+        <h1>Redirecionando...</h1>
+        <p className="hero-copy">O link será aberto automaticamente em alguns instantes.</p>
         <div className="list-loading" role="status">
           <Spinner aria-label="Redirecionando" />
-          <span>Redirecionando...</span>
+          <span>Carregando destino...</span>
         </div>
       </section>
     </main>
@@ -23,9 +24,9 @@ const RedirectPageError = () => {
   return (
     <main className="app-shell">
       <section className="hero-card" aria-label="Erro ao redirecionar link">
-        <p className="eyebrow">Brev.ly</p>
+        <p className="brand-mark">posRocket</p>
         <h1>Erro ao redirecionar</h1>
-        <p className="hero-copy">Nao foi possivel localizar o destino do link agora.</p>
+        <p className="hero-copy">Não foi possível localizar o destino deste link agora.</p>
         <a className="ui-button" href="/">
           Voltar para a home
         </a>
@@ -54,7 +55,12 @@ const RedirectPageWithRouter = () => {
           import("../services/increment-access"),
         ]);
         const link = await getLink(shortUrl);
-        await incrementAccess(shortUrl);
+
+        try {
+          await incrementAccess(shortUrl);
+        } catch (incrementError) {
+          console.warn("Falha ao incrementar contador de acesso", incrementError);
+        }
 
         if (!isActive) {
           return;
@@ -76,6 +82,7 @@ const RedirectPageWithRouter = () => {
           return;
         }
 
+        console.error("Falha ao redirecionar shortUrl", { shortUrl, error });
         setStatus("error");
       }
     };

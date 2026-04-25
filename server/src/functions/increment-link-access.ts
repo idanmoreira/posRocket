@@ -1,14 +1,28 @@
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 import { db } from "../db";
 import { links } from "../db/schema";
 
 export const incrementLinkAccess = async (shortUrl: string) => {
-  const [link] = await db
-    .update(links)
-    .set({ accessCount: sql`${links.accessCount} + 1` })
+  const [current] = await db
+    .select()
+    .from(links)
     .where(eq(links.shortUrl, shortUrl))
-    .returning();
+    .limit(1);
 
-  return link ?? null;
+  if (!current) {
+    return null;
+  }
+
+  const nextAccessCount = current.accessCount + 1;
+
+  await db
+    .update(links)
+    .set({ accessCount: nextAccessCount })
+    .where(eq(links.shortUrl, shortUrl));
+
+  return {
+    ...current,
+    accessCount: nextAccessCount,
+  };
 };

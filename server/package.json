@@ -5,29 +5,33 @@
   "type": "module",
   "scripts": {
     "postinstall": "node ./scripts/repair-ret.mjs",
-    "dev": "tsx watch src/server.ts",
+    "dev:db": "node ./scripts/dev-postgres.mjs",
+    "dev": "tsx watch --env-file=.env src/server.ts",
     "build": "tsup src/server.ts --format esm --out-dir dist",
     "start": "node dist/server.js",
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "tsx src/db/migrate.ts"
+    "db:migrate": "tsx --env-file=.env src/db/migrate.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1036.0",
     "@fastify/cors": "^11.2.0",
     "drizzle-orm": "^0.45.2",
+    "drizzle-pgmem": "^0.6.2",
+    "embedded-postgres": "^18.3.0-beta.17",
     "fastify": "^5.8.5",
     "pg": "^8.20.0",
+    "pg-mem": "^3.0.14",
     "ret": "^0.5.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@types/node": "^25.6.0",
+    "@types/node": "^22.10.5",
     "@types/pg": "^8.20.0",
     "drizzle-kit": "^0.31.10",
     "tsup": "^8.5.1",
     "tsx": "^4.21.0",
-    "typescript": "^6.0.3",
-    "vitest": "^0.25.8"
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
   }
 }

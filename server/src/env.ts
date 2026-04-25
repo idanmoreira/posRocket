@@ -2,6 +2,7 @@ import { z } from "zod";
 
 const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3333),
+  USE_PGMEM: z.coerce.boolean().default(false),
   DATABASE_URL: z.string().min(1),
   CLOUDFLARE_ACCOUNT_ID: z.string().min(1),
   CLOUDFLARE_ACCESS_KEY_ID: z.string().min(1),

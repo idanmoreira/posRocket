@@ -38,7 +38,7 @@ describe("App", () => {
   it("renders the app shell", async () => {
     const { App } = await import("../app");
     render(<App />);
-    expect(screen.getByText(/encurtador/i)).toBeInTheDocument();
+    expect(screen.getByText(/gerencie seus links/i)).toBeInTheDocument();
   });
 
   it("shows the create form and the empty state", async () => {

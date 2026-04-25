@@ -1,5 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("../src/env.ts", () => ({
+  env: {
+    USE_PGMEM: false,
+  },
+}));
+
 const mockedLink = {
   id: "link-1",
   originalUrl: "https://example.com",
@@ -9,7 +15,7 @@ const mockedLink = {
 };
 
 const uploadFileToR2 = vi.fn(async (_key: string, _body: string) => ({
-  url: "https://cdn.brev.ly/exports/test.csv",
+  url: "https://cdn.posrocket.dev/exports/test.csv",
 }));
 
 vi.mock("../src/db/index.ts", () => ({
@@ -54,15 +60,15 @@ describe("POST /links/export", () => {
 
     expect([200, 201]).toContain(response.statusCode);
     expect(response.json()).toEqual({
-      url: "https://cdn.brev.ly/exports/test.csv",
+      url: "https://cdn.posrocket.dev/exports/test.csv",
     });
     expect(uploadFileToR2).toHaveBeenCalledTimes(1);
     expect(randomUuidSpy).toHaveBeenCalledTimes(1);
     expect(uploadFileToR2).toHaveBeenCalledWith(
       "export-file-id.csv",
       [
-        "originalUrl,shortUrl,accessCount,createdAt",
-        "https://example.com,example,1,2026-04-23T12:00:00.000Z",
+        "ID,Original URL,Short URL,Access Count,Created at",
+        "link-1,https://example.com,example,1,2026-04-23T12:00:00.000Z",
       ].join("\n"),
     );
 
