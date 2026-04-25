@@ -1,1 +1,0 @@
-nesta pasta /web contem a resolução completa do desafio Front-end;
